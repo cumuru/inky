@@ -32,7 +32,7 @@ $inky->releaseTheKraken('html...');
 use Hampe\Inky\Inky;
 
 $inky = new Inky();
-$inky->addAlias('test', 'callout')
+$inky->addAlias('test', 'callout');
 
 $inky->releaseTheKraken('<test>123</test>'); //equal to "<callout>123</callout>"
 ```
@@ -52,7 +52,7 @@ class TestComponentFactory implements ComponentFactoryInterface
 {
     public function getName()
     {
-        return 'test' // name of the html tag.
+        return 'test'; // name of the html tag.
     }
 
     public function parse(HtmlNode $element, Inky $inkyInstance)
@@ -65,6 +65,37 @@ $inky = new Inky();
 $inky->addComponentFactory(new TestComponentFactory());
 $inky->releaseTheKraken('<test></test>');
 ```
+
+### XML Namespace
+
+If you want to prefix all your inky tags with an XML namespace
+you can set this prefix either in constructor or via setter:
+
+```php
+use Hampe\Inky\Inky;
+
+// Constructor way
+$inky = new Inky(12, [], 'inky');
+
+// Setter way
+$inky2 = new Inky();
+$inky2->setXmlNamespace('inky');
+```
+If you declare your namespace, create a XSD and make
+it know to your IDE you can benefit from autocompletion and 
+validation features of your IDE. Your inky templates might look as
+follows:
+
+```xml
+<inky:container>
+    <inky:row class="my-row">
+        <inky:columns large="6" small="4">
+            ...
+        </inky:columns>
+    </inky:row>
+</inky:container>
+``` 
+
 
 ## License
 See the [LICENSE](LICENSE) file for license info (it's the MIT license).

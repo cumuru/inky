@@ -7,8 +7,9 @@
  *  @filename   Inky.php
  *  @package    inky-parse
  *  @author     Thomas Hampe <github@hampe.co>
- *  @copyright  2013-2016 Thomas Hampe
- *  @date       10.01.16
+ *  @author     Felix Althaus <felix.althaus@undkonsorten.com>
+ *  @copyright  2013-2017 Thomas Hampe
+ *  @date       10.10.17
  */ 
 
 
@@ -44,13 +45,19 @@ class Inky
     protected $componentFactory = array();
 
     /**
+     * @var string
+     */
+    protected $xmlNamespace;
+
+    /**
      * @var int
      */
     protected $gridColumns;
 
-    public function __construct($gridColumns = 12, $componentFactories = array())
+    public function __construct($gridColumns = 12, $componentFactories = array(), $xmlNamespace = null)
     {
         $this->setGridColumns($gridColumns);
+        $this->setXmlNamespace($xmlNamespace);
         $this->addComponentFactory(new RowFactory());
         $this->addComponentFactory(new ContainerFactory());
         $this->addComponentFactory(new ButtonFactory());
@@ -218,7 +225,7 @@ class Inky
     {
         $parseInComplete = false;
         foreach($this->getAllComponentFactories() as $tag => $factory) {
-            $elements = $dom->getElementsByTag($tag);
+            $elements = $dom->getElementsByTag($this->getXmlNamespacePrefix() . $tag);
             foreach($elements as $element) {
                 /** @var AbstractNode|Collection $element */
                 $newElement = $factory->parse($element, $this);
@@ -263,6 +270,34 @@ class Inky
             }
         }
         return $parseInComplete;
+    }
+
+    /**
+     * @param string $xmlNamespace The XML namespace for all inky tags, without colon (:)
+     *   Set to null or empty string to skip XML namespace
+     * @return $this Inky object for method chaining
+     */
+    public function setXmlNamespace($xmlNamespace)
+    {
+        $xmlNamespace = trim($xmlNamespace);
+        $this->xmlNamespace = $xmlNamespace ?: null;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getXmlNamespace()
+    {
+        return $this->xmlNamespace;
+    }
+
+    /**
+     * @return string The XML namespace prefix including colon (:), empty string if no namespace is set
+     */
+    protected function getXmlNamespacePrefix()
+    {
+        return $this->xmlNamespace ? $this->xmlNamespace . ':' : '';
     }
 
 }

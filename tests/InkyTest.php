@@ -7,8 +7,9 @@
  *  @filename   Test.php
  *  @package    inky-parse
  *  @author     Thomas Hampe <github@hampe.co>
- *  @copyright  2013-2016 Thomas Hampe
- *  @date       13.03.16
+ *  @author     Felix Althaus <felix.althaus@undkonsorten.com>
+ *  @copyright  2013-2017 Thomas Hampe
+ *  @date       10.10.17
  */
 
 use PHPHtmlParser\Dom;
@@ -40,6 +41,37 @@ class InkyTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(null, $inky->getComponentFactory('test'));
         $this->assertEquals('<test>Test</test>', $inky->releaseTheKraken('<test>Test</test>'));
 
+    }
+
+    public function testXmlNamespace()
+    {
+        $inky = new \Hampe\Inky\Inky(12, [], 'inky');
+        $this->assertEquals('<table class="callout"><tr><th class="callout-inner">Test</th><th class="expander"></th></tr></table>',
+            $inky->releaseTheKraken('<inky:callout>Test</inky:callout>'));
+        $this->assertNotEquals('<table class="callout"><tr><th class="callout-inner">Test</th><th class="expander"></th></tr></table>',
+            '<callout>Test</callout>');
+        $inky->addAlias('test', 'callout');
+        $this->assertEquals('<table class="callout"><tr><th class="callout-inner">Test</th><th class="expander"></th></tr></table>',
+            $inky->releaseTheKraken('<inky:test>Test</inky:test>'));
+        $this->assertEquals('<inky:unknown>Test</inky:unknown>', $inky->releaseTheKraken('<inky:unknown>Test</inky:unknown>'));
+    }
+
+    public function testXmlNamespaceViaSetter()
+    {
+        $inky = new \Hampe\Inky\Inky();
+        $inky->setXmlNamespace('inky');
+        $this->assertEquals('<table class="callout"><tr><th class="callout-inner">Test</th><th class="expander"></th></tr></table>',
+            $inky->releaseTheKraken('<inky:callout>Test</inky:callout>'));
+        $inky->setXmlNamespace(null);
+        $this->assertNotEquals('<table class="callout"><tr><th class="callout-inner">Test</th><th class="expander"></th></tr></table>',
+            $inky->releaseTheKraken('<inky:callout>Test</inky:callout>'));
+    }
+
+    public function testXmlNamespaceGetterAndSetter()
+    {
+        $inky = new Hampe\Inky\Inky();
+        $inky->setXmlNamespace('testns');
+        $this->assertEquals('testns', $inky->getXmlNamespace());
     }
 
     public function testStyles()
